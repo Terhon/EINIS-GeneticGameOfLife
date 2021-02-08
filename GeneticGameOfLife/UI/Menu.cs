@@ -3,9 +3,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System.Drawing;
-using GeneticGameOfLife.Core;
-using SharpDX;
 using Color = Microsoft.Xna.Framework.Color;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
@@ -31,6 +28,8 @@ namespace GeneticGameOfLife.UI
         private Rectangle _btnInitFillDownRectangle;
         private Rectangle _btnMutationUpRectangle;
         private Rectangle _btnMutationDownRectangle;
+        private Rectangle _btnBoardUpRectangle;
+        private Rectangle _btnBoardDownRectangle;
 
         private SpriteFont _mainFont;
         private Texture2D _startBtn;
@@ -58,37 +57,41 @@ namespace GeneticGameOfLife.UI
             _simulation = simulation;
 
             _btnStartStopRectangle = new Rectangle(
-                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25,
-                _simulation.Board.BaseState.GetLength(1) * _simulation.CellSize + 1 - 50, 2 * _buttonWidth + 20,
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25, 10, 2 * _buttonWidth + 20,
                 _buttonHeight);
             _btnIterateRectangle = new Rectangle(
-                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25,
-                _simulation.Board.BaseState.GetLength(1) * _simulation.CellSize + 1 - 50 - 45, 2 * _buttonWidth + 20,
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25, 50, 2 * _buttonWidth + 20,
                 _buttonHeight);
             _btnBoardSizeUpRectangle = new Rectangle(
-                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 70,
-                _simulation.Board.BaseState.GetLength(1) * _simulation.CellSize + 1 - 50 - 2*45, _buttonWidth, _buttonHeight);
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 70, 90, _buttonWidth,
+                _buttonHeight);
             _btnBoardSizeDownRectangle = new Rectangle(
-                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25,
-                _simulation.Board.BaseState.GetLength(1) * _simulation.CellSize + 1 - 50 - 2*45, _buttonWidth, _buttonHeight);
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25, 90, _buttonWidth,
+                _buttonHeight);
             _btnPopSizeUpRectangle = new Rectangle(
-                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 70,
-                _simulation.Board.BaseState.GetLength(1) * _simulation.CellSize + 1 - 50 - 3*45, _buttonWidth, _buttonHeight);
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 70, 130, _buttonWidth,
+                _buttonHeight);
             _btnPopSizeDownRectangle = new Rectangle(
-                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25,
-                _simulation.Board.BaseState.GetLength(1) * _simulation.CellSize + 1 - 50 - 3*45, _buttonWidth, _buttonHeight);
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25, 130, _buttonWidth,
+                _buttonHeight);
             _btnInitFillUpRectangle = new Rectangle(
-                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 70,
-                _simulation.Board.BaseState.GetLength(1) * _simulation.CellSize + 1 - 50 - 4*45, _buttonWidth, _buttonHeight);
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 70, 170, _buttonWidth,
+                _buttonHeight);
             _btnInitFillDownRectangle = new Rectangle(
-                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25,
-                _simulation.Board.BaseState.GetLength(1) * _simulation.CellSize + 1 - 50 - 4*45, _buttonWidth, _buttonHeight);
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25, 170, _buttonWidth,
+                _buttonHeight);
             _btnMutationUpRectangle = new Rectangle(
-                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 70,
-                _simulation.Board.BaseState.GetLength(1) * _simulation.CellSize + 1 - 50 - 5*45, _buttonWidth, _buttonHeight);
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 70, 210, _buttonWidth,
+                _buttonHeight);
             _btnMutationDownRectangle = new Rectangle(
-                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25,
-                _simulation.Board.BaseState.GetLength(1) * _simulation.CellSize + 1 - 50 - 5*45, _buttonWidth, _buttonHeight);
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25, 210, _buttonWidth,
+                _buttonHeight);
+            _btnBoardUpRectangle = new Rectangle(
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 70, 250, _buttonWidth,
+                _buttonHeight);
+            _btnBoardDownRectangle = new Rectangle(
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25, 250, _buttonWidth,
+                _buttonHeight);
         }
 
         public void LoadContent()
@@ -165,7 +168,12 @@ namespace GeneticGameOfLife.UI
                 _mutationRate -= 0.1;
                 if (_mutationRate < 0) _mutationRate = 0;
             }
-            
+
+            if (mouseRect.Intersects(_btnBoardUpRectangle))
+                _simulation.ChangeBoard(1);
+            if (mouseRect.Intersects(_btnBoardDownRectangle))
+                _simulation.ChangeBoard(-1);
+
             UpdateRectangles();
             _mouseClickTimer = 0;
         }
@@ -173,37 +181,41 @@ namespace GeneticGameOfLife.UI
         private void UpdateRectangles()
         {
             _btnStartStopRectangle = new Rectangle(
-                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25,
-                _simulation.Board.BaseState.GetLength(1) * _simulation.CellSize + 1 - 50, 2 * _buttonWidth + 20,
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25, 10, 2 * _buttonWidth + 20,
                 _buttonHeight);
             _btnIterateRectangle = new Rectangle(
-                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25,
-                _simulation.Board.BaseState.GetLength(1) * _simulation.CellSize + 1 - 50 - 45, 2 * _buttonWidth + 20,
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25, 50, 2 * _buttonWidth + 20,
                 _buttonHeight);
             _btnBoardSizeUpRectangle = new Rectangle(
-                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 70,
-                _simulation.Board.BaseState.GetLength(1) * _simulation.CellSize + 1 - 50 - 2*45, _buttonWidth, _buttonHeight);
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 70, 90, _buttonWidth,
+                _buttonHeight);
             _btnBoardSizeDownRectangle = new Rectangle(
-                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25,
-                _simulation.Board.BaseState.GetLength(1) * _simulation.CellSize + 1 - 50 - 2*45, _buttonWidth, _buttonHeight);
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25, 90, _buttonWidth,
+                _buttonHeight);
             _btnPopSizeUpRectangle = new Rectangle(
-                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 70,
-                _simulation.Board.BaseState.GetLength(1) * _simulation.CellSize + 1 - 50 - 3*45, _buttonWidth, _buttonHeight);
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 70, 130, _buttonWidth,
+                _buttonHeight);
             _btnPopSizeDownRectangle = new Rectangle(
-                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25,
-                _simulation.Board.BaseState.GetLength(1) * _simulation.CellSize + 1 - 50 - 3*45, _buttonWidth, _buttonHeight);
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25, 130, _buttonWidth,
+                _buttonHeight);
             _btnInitFillUpRectangle = new Rectangle(
-                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 70,
-                _simulation.Board.BaseState.GetLength(1) * _simulation.CellSize + 1 - 50 - 4*45, _buttonWidth, _buttonHeight);
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 70, 170, _buttonWidth,
+                _buttonHeight);
             _btnInitFillDownRectangle = new Rectangle(
-                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25,
-                _simulation.Board.BaseState.GetLength(1) * _simulation.CellSize + 1 - 50 - 4*45, _buttonWidth, _buttonHeight);
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25, 170, _buttonWidth,
+                _buttonHeight);
             _btnMutationUpRectangle = new Rectangle(
-                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 70,
-                _simulation.Board.BaseState.GetLength(1) * _simulation.CellSize + 1 - 50 - 5*45, _buttonWidth, _buttonHeight);
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 70, 210, _buttonWidth,
+                _buttonHeight);
             _btnMutationDownRectangle = new Rectangle(
-                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25,
-                _simulation.Board.BaseState.GetLength(1) * _simulation.CellSize + 1 - 50 - 5*45, _buttonWidth, _buttonHeight);
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25, 210, _buttonWidth,
+                _buttonHeight);
+            _btnBoardUpRectangle = new Rectangle(
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 70, 250, _buttonWidth,
+                _buttonHeight);
+            _btnBoardDownRectangle = new Rectangle(
+                _simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 25, 250, _buttonWidth,
+                _buttonHeight);
         }
 
         public void Draw(GameTime gameTime)
@@ -212,24 +224,9 @@ namespace GeneticGameOfLife.UI
 
             if (_simulation != null)
             {
-                if (_simulation.IsRunning)
-                {
-                    _spriteBatch.Draw(_stopBtn,
-                        new Vector2(_btnStartStopRectangle.X,
-                            _btnStartStopRectangle.Y), Color.White);
-                    _spriteBatch.DrawString(_mainFont, "Status: running",
-                        new Vector2(_simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 10, 10),
-                        Color.Lime);
-                }
-                else
-                {
-                    _spriteBatch.Draw(_startBtn,
-                        new Vector2(_btnStartStopRectangle.X,
-                            _btnStartStopRectangle.Y), Color.White);
-                    _spriteBatch.DrawString(_mainFont, "Status: not running",
-                        new Vector2(_simulation.Board.BaseState.GetLength(0) * _simulation.CellSize + 1 + 10, 10),
-                        Color.Red);
-                }
+                _spriteBatch.Draw(_simulation.IsRunning ? _stopBtn : _startBtn,
+                    new Vector2(_btnStartStopRectangle.X,
+                        _btnStartStopRectangle.Y), Color.White);
 
                 _spriteBatch.Draw(_iterateBtn, new Vector2(_btnIterateRectangle.X,
                     _btnIterateRectangle.Y), Color.White);
@@ -240,9 +237,10 @@ namespace GeneticGameOfLife.UI
                     _btnBoardSizeDownRectangle.Y), Color.White);
                 _spriteBatch.DrawString(_mainFont, "+1", new Vector2(_btnBoardSizeUpRectangle.X + 10,
                     _btnBoardSizeDownRectangle.Y + 5), Color.Blue);
-                _spriteBatch.DrawString(_mainFont, "Board size: " + _simulation.BoardSize.ToString(), new Vector2(_btnBoardSizeUpRectangle.X + 45,
+                _spriteBatch.DrawString(_mainFont, "Board size: " + _simulation.BoardSize.ToString(), new Vector2(
+                    _btnBoardSizeUpRectangle.X + 45,
                     _btnBoardSizeUpRectangle.Y + 5), Color.Blue);
-                
+
                 _spriteBatch.Draw(_changeBtn, new Vector2(_btnBoardSizeDownRectangle.X,
                     _btnBoardSizeDownRectangle.Y), Color.White);
                 _spriteBatch.DrawString(_mainFont, "-1", new Vector2(_btnBoardSizeDownRectangle.X + 10,
@@ -252,9 +250,10 @@ namespace GeneticGameOfLife.UI
                     _btnPopSizeUpRectangle.Y), Color.White);
                 _spriteBatch.DrawString(_mainFont, "+1", new Vector2(_btnPopSizeUpRectangle.X + 10,
                     _btnPopSizeUpRectangle.Y + 5), Color.Blue);
-                _spriteBatch.DrawString(_mainFont, "Population size: " + _simulation.PopSize.ToString(), new Vector2(_btnPopSizeUpRectangle.X + 45,
+                _spriteBatch.DrawString(_mainFont, "Population size: " + _simulation.PopSize.ToString(), new Vector2(
+                    _btnPopSizeUpRectangle.X + 45,
                     _btnPopSizeUpRectangle.Y + 5), Color.Blue);
-                
+
                 _spriteBatch.Draw(_changeBtn, new Vector2(_btnPopSizeDownRectangle.X,
                     _btnPopSizeDownRectangle.Y), Color.White);
                 _spriteBatch.DrawString(_mainFont, "-1", new Vector2(_btnPopSizeDownRectangle.X + 10,
@@ -264,9 +263,10 @@ namespace GeneticGameOfLife.UI
                     _btnInitFillUpRectangle.Y), Color.White);
                 _spriteBatch.DrawString(_mainFont, "-0.1", new Vector2(_btnInitFillUpRectangle.X + 10,
                     _btnInitFillUpRectangle.Y + 5), Color.Blue);
-                _spriteBatch.DrawString(_mainFont, "Initial fill: " + (1.1-_simulation.InitFill).ToString(), new Vector2(_btnInitFillUpRectangle.X + 45,
-                    _btnInitFillUpRectangle.Y + 5), Color.Blue);
-                
+                _spriteBatch.DrawString(_mainFont, "Initial fill: " + (1.1 - _simulation.InitFill),
+                    new Vector2(_btnInitFillUpRectangle.X + 45,
+                        _btnInitFillUpRectangle.Y + 5), Color.Blue);
+
                 _spriteBatch.Draw(_changeBtn, new Vector2(_btnInitFillDownRectangle.X,
                     _btnInitFillDownRectangle.Y), Color.White);
                 _spriteBatch.DrawString(_mainFont, "+0.1", new Vector2(_btnInitFillDownRectangle.X + 10,
@@ -276,13 +276,27 @@ namespace GeneticGameOfLife.UI
                     _btnMutationUpRectangle.Y), Color.White);
                 _spriteBatch.DrawString(_mainFont, "+0.1", new Vector2(_btnMutationUpRectangle.X + 10,
                     _btnMutationUpRectangle.Y + 5), Color.Blue);
-                _spriteBatch.DrawString(_mainFont, "Mutation rate: " + _mutationRate.ToString(), new Vector2(_btnMutationUpRectangle.X + 45,
+                _spriteBatch.DrawString(_mainFont, "Mutation rate: " + _mutationRate, new Vector2(
+                    _btnMutationUpRectangle.X + 45,
                     _btnMutationUpRectangle.Y + 5), Color.Blue);
 
                 _spriteBatch.Draw(_changeBtn, new Vector2(_btnMutationDownRectangle.X,
                     _btnMutationDownRectangle.Y), Color.White);
                 _spriteBatch.DrawString(_mainFont, "-0.1", new Vector2(_btnMutationDownRectangle.X + 10,
                     _btnMutationDownRectangle.Y + 5), Color.Blue);
+
+                _spriteBatch.Draw(_changeBtn, new Vector2(_btnBoardUpRectangle.X,
+                    _btnBoardUpRectangle.Y), Color.White);
+                _spriteBatch.DrawString(_mainFont, ">", new Vector2(_btnBoardUpRectangle.X + 10,
+                    _btnBoardUpRectangle.Y + 5), Color.Blue);
+                _spriteBatch.DrawString(_mainFont, "Board: " + _simulation.BoardIdx, new Vector2(
+                    _btnBoardUpRectangle.X + 45,
+                    _btnBoardUpRectangle.Y + 5), Color.Blue);
+
+                _spriteBatch.Draw(_changeBtn, new Vector2(_btnBoardDownRectangle.X,
+                    _btnBoardDownRectangle.Y), Color.White);
+                _spriteBatch.DrawString(_mainFont, "<", new Vector2(_btnBoardDownRectangle.X + 10,
+                    _btnBoardDownRectangle.Y + 5), Color.Blue);
             }
 
             _spriteBatch.End();

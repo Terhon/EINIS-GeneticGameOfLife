@@ -5,16 +5,16 @@ namespace GeneticGameOfLife.Core
 {
     public class Board : IComparable<Board>
     {
-        public bool[,] BaseState { get; private set; }
+        public bool[,] BaseState { get; }
         public bool[,] CurrState { get; private set; }
         public int SurvivedEpochs { get; private set; }
         public int SurvivingCells { get; private set; }
-        public int Changes { get; private set; }
+        private int Changes { get; set; }
 
-        private List<Tuple<int, int>> StateTracker;
-        private int LastRepeatedIdx;
-        private bool InCycle = false;
-        private int IterationsInCycle = 0;
+        public List<Tuple<int, int>> StateTracker { get; }
+        private int _lastRepeatedIdx;
+        private bool _inCycle = false;
+        private int _iterationsInCycle = 0;
 
         public Board(int x, int y)
         {
@@ -41,7 +41,7 @@ namespace GeneticGameOfLife.Core
             {
                 Run();
                 CheckCycle();
-            } while (IterationsInCycle < 5 && SurvivedEpochs < limit);
+            } while (_iterationsInCycle < 5 && SurvivedEpochs < limit);
         }
 
         public void Run()
@@ -124,29 +124,39 @@ namespace GeneticGameOfLife.Core
                 StateTracker.Add(curr);
 
             var idx = StateTracker.IndexOf(curr);
-            if (InCycle)
+            if (_inCycle)
             {
                 switch (idx)
                 {
                     case -1:
-                        InCycle = false;
-                        IterationsInCycle = 0;
+                        _inCycle = false;
+                        _iterationsInCycle = 0;
                         StateTracker.Add(curr);
                         break;
                     case 0:
-                        LastRepeatedIdx = 0;
-                        IterationsInCycle++;
-                        break;
-                    default:
-                    {
-                        if (idx == LastRepeatedIdx + 1)
+                        if (_lastRepeatedIdx == StateTracker.Count - 1)
                         {
-                            LastRepeatedIdx++;
+                            _lastRepeatedIdx = 0;
+                            _iterationsInCycle++;
                         }
                         else
                         {
-                            InCycle = false;
-                            IterationsInCycle = 0;
+                            _inCycle = false;
+                            _iterationsInCycle = 0;
+                            StateTracker.Clear();
+                        }
+
+                        break;
+                    default:
+                    {
+                        if (idx == _lastRepeatedIdx + 1)
+                        {
+                            _lastRepeatedIdx++;
+                        }
+                        else
+                        {
+                            _inCycle = false;
+                            _iterationsInCycle = 0;
                         }
 
                         break;
@@ -161,19 +171,20 @@ namespace GeneticGameOfLife.Core
                         StateTracker.Add(curr);
                         break;
                     case 0:
-                        InCycle = true;
-                        IterationsInCycle = 1;
-                        LastRepeatedIdx = 0;
+                        _inCycle = true;
+                        _iterationsInCycle = 1;
+                        _lastRepeatedIdx = 0;
                         break;
                     default:
-                        InCycle = true;
-                        IterationsInCycle = 1;
-                        LastRepeatedIdx = 0;
+                        _inCycle = true;
+                        _iterationsInCycle = 1;
+                        _lastRepeatedIdx = 0;
                         StateTracker.RemoveRange(0, idx);
                         break;
                 }
             }
-            if(StateTracker.Count > 20)
+
+            if (StateTracker.Count > 20)
                 StateTracker.RemoveAt(0);
         }
 
@@ -194,11 +205,20 @@ namespace GeneticGameOfLife.Core
             var y = CurrState.GetLength(1);
             var newBoard = CurrState.Clone() as bool[,];
 
+            bool[,] crossTab =
+            {
+                {rand.NextDouble() < 0.5, rand.NextDouble() < 0.5}, {rand.NextDouble() < 0.5, rand.NextDouble() < 0.5}
+            };
+            var crossX = rand.Next(x);
+            var crossY = rand.Next(y);
+
             for (var i = 0; i < x; i++)
             {
                 for (var j = 0; j < y; j++)
                 {
-                    newBoard[i, j] = rand.NextDouble() < 0.5 ? CurrState[i, j] : other.CurrState[i, j];
+                    var cx = i <= crossX ? 0 : 1;
+                    var cy = j <= crossY ? 0 : 1;
+                    newBoard[i, j] = crossTab[cx, cy] ? CurrState[i, j] : other.CurrState[i, j];
                 }
             }
 
@@ -226,7 +246,7 @@ namespace GeneticGameOfLife.Core
 
         public int GetCycleLength()
         {
-            return (InCycle && IterationsInCycle>2) ? StateTracker.Count : 0;
+            return (_inCycle && _iterationsInCycle > 2) ? StateTracker.Count : 0;
         }
     }
 }

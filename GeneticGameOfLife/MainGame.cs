@@ -12,7 +12,6 @@ public class MainGame : Game
 {
     private List<IUiElement> _uiElements = new List<IUiElement>();
     private GraphicsDeviceManager _graphicsDeviceManager;
-    private SpriteBatch _spriteBatch;
 
     public MainGame ()
     {
@@ -39,7 +38,6 @@ public class MainGame : Game
     }
     protected override void LoadContent()
     {
-        _spriteBatch = new SpriteBatch(GraphicsDevice);
         foreach (var uiElement in _uiElements)
             uiElement.LoadContent();
     }

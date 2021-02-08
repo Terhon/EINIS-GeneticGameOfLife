@@ -17,12 +17,12 @@ namespace GeneticGameOfLife.UI
         public int BoardSize { get; private set; } = 30;
         public int PopSize { get; private set; } = 20;
         public double InitFill { get; private set; } = 0.6;
-
-        public int UpdateRate { get; set; } = 100;
+        public int BoardIdx;
+        private int UpdateRate { get; set; } = 100;
         private double _updateRateTimer;
         public bool IsRunning = true;
 
-        public Algorithm Algorithm;
+        private Algorithm _algorithm;
         public Board Board;
 
         public void Initialize(GraphicsDevice graphicsDevice, ContentManager content)
@@ -30,8 +30,8 @@ namespace GeneticGameOfLife.UI
             _graphicsDevice = graphicsDevice ?? throw new ArgumentNullException(nameof(graphicsDevice));
             _contentManager = content ?? throw new ArgumentNullException(nameof(content));
             _spriteBatch = new SpriteBatch(_graphicsDevice);
-            Algorithm = new Algorithm(BoardSize, PopSize, InitFill);
-            Board = Algorithm.Boards.First();
+            _algorithm = new Algorithm(BoardSize, PopSize, InitFill);
+            Board = _algorithm.Boards.First();
         }
 
         public void LoadContent()
@@ -91,12 +91,15 @@ namespace GeneticGameOfLife.UI
 
         public void Run(int limit, double mutationRate)
         {
-            Algorithm.Run(limit, mutationRate);
-            Board = Algorithm.Boards.First();
+            _algorithm.Run(limit, mutationRate);
+            Board = _algorithm.Boards.First();
             Board.Reset();
-            Console.WriteLine(Board.SurvivedEpochs);
-            Console.WriteLine(Board.SurvivingCells);
-            Console.WriteLine(Board.GetCycleLength());
+            BoardIdx = _algorithm.Boards.IndexOf(Board);
+            Console.WriteLine("Best Board");
+            Console.WriteLine("Survived Epochs: " + Board.SurvivedEpochs);
+            Console.WriteLine("Surviving Cells: " + Board.SurvivingCells);
+            Console.WriteLine("Cycle Length: " + Board.GetCycleLength());
+            Console.WriteLine(string.Join(", ", Board.StateTracker.Select(t => $"['{t.Item1}', '{t.Item2}']")));
         }
 
         public void Reset(int boardSize, int popSize, double initFill)
@@ -115,8 +118,20 @@ namespace GeneticGameOfLife.UI
                 initFill = 1;
             InitFill = initFill;
 
-            Algorithm = new Algorithm(BoardSize, PopSize, InitFill);
-            Board = Algorithm.Boards.First();
+            _algorithm = new Algorithm(BoardSize, PopSize, InitFill);
+            Board = _algorithm.Boards.First();
+        }
+
+        public void ChangeBoard(int dir)
+        {
+            var idx = _algorithm.Boards.IndexOf(Board);
+            idx += dir;
+            if (idx <= 0) idx = 0;
+            if (idx >= _algorithm.Boards.Count) idx = _algorithm.Boards.Count - 1;
+
+            Board = _algorithm.Boards[idx];
+            BoardIdx = _algorithm.Boards.IndexOf(Board);
+            Board.Reset();
         }
     }
 }
